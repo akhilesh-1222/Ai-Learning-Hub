@@ -6,15 +6,16 @@
 }
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  --background: #f8fafcf4;
+  --foreground: #202122;
   --card: rgba(255, 255, 255, 0.8);
   --card-border: rgba(0, 0, 0, 0.08);
   --accent-glow: rgba(99, 102, 241, 0.05);
 }
 
 .dark {
-  --background: #090d16; /* deep obsidian background */
+  --background: #1d1d20;
+  /* deep obsidian background */
   --foreground: #f1f5f9;
   --card: rgba(17, 24, 39, 0.7);
   --card-border: rgba(255, 255, 255, 0.06);
@@ -30,13 +31,18 @@ body {
   overflow-x: hidden;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-display);
 }
 
 /* Custom premium styling classes */
 .glass-panel {
-  background: rgba(15, 23, 42, 0.4);
+  background: rgba(50, 48, 48, 0.4);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--card-border);
@@ -89,9 +95,12 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Animate background blobs */
 @keyframes float {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0) scale(1);
   }
+
   50% {
     transform: translateY(-20px) scale(1.05);
   }
@@ -108,4 +117,3 @@ h1, h2, h3, h4, h5, h6 {
 .animation-delay-4000 {
   animation-delay: 4s;
 }
-

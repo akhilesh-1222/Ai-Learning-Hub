@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 
-const MONGO_URI = "mongodb+srv://riddhi9892jaiswal_db_user:Riddhi%409892@learninghubcluster.idxsneg.mongodb.net/ai-learning-hub?appName=learninghubcluster";
-
+const MONGO_URI = "mongodb+srv://Akhileshyadav:Akhil2026@cluster0.lax7ogg.mongodb.net/codex-hackathone?appName=Cluster0";
 console.log("Connecting to:", MONGO_URI);
 
 mongoose.connect(MONGO_URI)

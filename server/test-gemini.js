@@ -7,6 +7,7 @@ const ai = new GoogleGenAI({
     apiKey: process.env.GEMINI_API_KEY,
 });
 
+
 try {
     const chunks = ["This is a test message to query"];
     const response = await ai.models.embedContent({
