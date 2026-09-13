@@ -253,13 +253,18 @@ export const sendMessage = async (req, res) => {
 
     res.write(`data: ${JSON.stringify({ type: 'done', message: assistantMessage })}\n\n`);
     res.end();
-
-  }
-
-
-  catch (error) {
+  } catch (error) {
     console.error('Error in sendMessage:', error);
-    res.write(`data: ${JSON.stringify({ type: 'error', message: 'Server error when contacting AI' })}\n\n`);
-    res.end();
+    const isRateLimit = error.status === 429 || error.message?.includes('429') || error.message?.includes('RESOURCE_EXHAUSTED');
+    const userMessage = isRateLimit
+      ? 'AI service is currently busy on the free tier. Please wait 15-30 seconds and try again.'
+      : 'An error occurred while communicating with the AI service. Please try again.';
+
+    if (res.headersSent) {
+      res.write(`data: ${JSON.stringify({ type: 'error', message: userMessage })}\n\n`);
+      res.end();
+    } else {
+      res.status(isRateLimit ? 429 : 500).json({ message: userMessage });
+    }
   }
 };

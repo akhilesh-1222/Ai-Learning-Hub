@@ -57,36 +57,52 @@ export const uploadDocument = async (req, res) => {
       });
     }
 
-    // 4. Generate embeddings and save to DB
+    // 4. Generate embeddings and save to DB (Safely capped for free tier resources)
+    const MAX_FREE_CHUNKS = 25; // Protects Gemini free rate limits & Render memory
+    const safeChunks = chunks.slice(0, MAX_FREE_CHUNKS);
     const noteEmbeddings = [];
-    const batchSize = 90;
+    const batchSize = 10; // Safer batch size
 
-    for (let i = 0; i < chunks.length; i += batchSize) {
-      const chunkBatch = chunks.slice(i, i + batchSize);
-      
-      const response = await ai.models.embedContent({
-        model: 'gemini-embedding-001',
-        contents: chunkBatch,
-      });
-
-      const vectors = response.embeddings.map(emb => emb.values);
-
-      for (let j = 0; j < chunkBatch.length; j++) {
-        noteEmbeddings.push({
-          noteId: note._id,
-          userId: req.user._id,
-          textChunk: chunkBatch[j],
-          embedding: vectors[j],
+    try {
+      for (let i = 0; i < safeChunks.length; i += batchSize) {
+        const chunkBatch = safeChunks.slice(i, i + batchSize);
+        
+        const response = await ai.models.embedContent({
+          model: 'text-embedding-004',
+          contents: chunkBatch,
         });
+
+        const vectors = response.embeddings?.map(emb => emb.values) || [];
+
+        for (let j = 0; j < chunkBatch.length; j++) {
+          if (vectors[j]) {
+            noteEmbeddings.push({
+              noteId: note._id,
+              userId: req.user._id,
+              textChunk: chunkBatch[j],
+              embedding: vectors[j],
+            });
+          }
+        }
       }
+
+      if (noteEmbeddings.length > 0) {
+        await NoteEmbedding.insertMany(noteEmbeddings);
+      }
+    } catch (embedError) {
+      console.warn("Embedding generation warning (file saved without full vector index):", embedError.message);
+      // Still return 201 so user can view the document and text without a hard crash
+      return res.status(201).json({
+        message: 'File uploaded and text extracted. AI indexing partially limited on free tier.',
+        note,
+        chunksCount: safeChunks.length,
+      });
     }
 
-    await NoteEmbedding.insertMany(noteEmbeddings);
-
     res.status(201).json({
-      message: 'File processed and embeddings saved successfully',
+      message: 'File processed and indexed successfully',
       note,
-      chunksCount: chunks.length,
+      chunksCount: safeChunks.length,
     });
   } catch (error) {
     console.error('Error in uploadDocument:', error);

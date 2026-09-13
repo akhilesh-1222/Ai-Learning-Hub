@@ -12,7 +12,7 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme, setTheme] = useState<Theme>("dark"); // Default to premium dark mode
+  const [theme, setTheme] = useState<Theme>("light"); // Default to clean light SaaS mode
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -20,7 +20,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       if (savedTheme) {
         setTheme(savedTheme);
       } else {
-        localStorage.setItem("theme", "dark");
+        localStorage.setItem("theme", "light");
       }
     }
   }, []);

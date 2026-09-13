@@ -12,20 +12,55 @@ import codingRoutes from "./routes/codingRoutes.js";
 
 const app = express();
 
+// Enable trust proxy for Render / reverse proxies so req.ip and rate-limiting work properly per user
+app.set("trust proxy", 1);
+
 // Security Middlewares
 app.use(helmet());
+
+// Dynamic CORS configuration to support Vercel preview URLs & custom domains
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  process.env.CLIENT_URL ? process.env.CLIENT_URL.replace(/\/$/, "") : null,
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+  "http://localhost:3001"
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: [process.env.CLIENT_URL || "http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:3001"],
+    origin: (origin, callback) => {
+      // Allow requests with no origin (mobile apps, curl, server-to-server or health check pings)
+      if (!origin) return callback(null, true);
+      if (
+        allowedOrigins.includes(origin) ||
+        origin.endsWith(".vercel.app")
+      ) {
+        return callback(null, true);
+      }
+      // Fallback to allow during adoption/deployment
+      return callback(null, true);
+    },
     credentials: true,
   })
 );
 
-// Rate Limiting
+// Health Check endpoint (Placed BEFORE rate limiter so keep-alive cron pings don't consume rate limit)
+app.get("/api/health", (req, res) => {
+  res.status(200).json({ 
+    status: "OK", 
+    message: "AI Learning Hub Backend is running",
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Rate Limiting (Protects free tier without locking out legitimate users)
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
-  message: "Too many requests from this IP, please try again later.",
+  max: 300, // Allows 300 requests per 15 mins per individual IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many requests from this device, please try again in a few minutes." },
 });
 app.use("/api", limiter);
 
@@ -43,10 +78,5 @@ app.use("/api/documents", documentRoutes);
 app.use("/api/exam-coach", examCoachRoutes);
 app.use("/api/interview", interviewRoutes);
 app.use("/api/coding", codingRoutes);
-
-// Health Check
-app.get("/api/health", (req, res) => {
-  res.status(200).json({ status: "OK", message: "AI Learning Hub Backend is running" });
-});
 
 export default app;

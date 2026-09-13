@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { LogIn, Mail, Lock, AlertCircle, Loader2 } from "lucide-react";
+import { LogIn, Mail, Lock, AlertCircle, Loader2, Terminal, ArrowRight } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -15,59 +15,63 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
     if (!email || !password) {
-      setError("Please fill in all fields.");
+      setError("Please enter your email and password.");
       return;
     }
     try {
       await login(email, password);
     } catch (err: any) {
-      setError(err.message || "Failed to log in.");
+      setError(err.message || "Invalid credentials. Please try again.");
     }
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-[#090d16] text-[#f1f5f9] overflow-hidden px-4">
-      {/* Decorative Glowing Blobs */}
-      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-purple-600 rounded-full mix-blend-screen filter blur-[100px] opacity-25 animate-blob"></div>
-      <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-80 h-80 bg-indigo-600 rounded-full mix-blend-screen filter blur-[100px] opacity-25 animate-blob animation-delay-2000"></div>
+    <div className="relative min-h-screen flex items-center justify-center bg-[#fafbfc] text-slate-900 overflow-hidden px-4">
+      {/* Subtle Dot Grid Background */}
+      <div className="absolute inset-0 bg-dot-grid-light pointer-events-none opacity-40 z-0"></div>
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[350px] bg-radial-glow-light pointer-events-none z-0"></div>
 
-      <div className="w-full max-w-md z-10">
-        {/* Title branding */}
+      <div className="w-full max-w-md z-10 my-8">
+        {/* Logo and title */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">
-            AI Learning Hub
+          <Link href="/" className="inline-flex items-center gap-2.5 mb-4 group">
+            <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center shadow-md shadow-indigo-600/20 group-hover:scale-105 transition-transform">
+              <Terminal className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-xl font-bold tracking-tight text-slate-900">
+              AI Learning Hub
+            </span>
+          </Link>
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+            Welcome back
           </h1>
-          <p className="text-slate-400 mt-2 font-medium">Your personalized AI coaching platform</p>
+          <p className="text-slate-500 text-sm mt-1">
+            Sign in to continue to your AI learning workspace
+          </p>
         </div>
 
-        {/* Form panel */}
-        <div className="glass-panel p-8 rounded-2xl shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-violet-500 to-indigo-500"></div>
-
-          <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-            <LogIn className="w-6 h-6 text-violet-400" /> Welcome Back
-          </h2>
-
+        {/* Form Card */}
+        <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-xl shadow-slate-200/60 relative">
           {error && (
-            <div className="mb-6 p-4 bg-red-950/40 border border-red-500/30 text-red-200 rounded-lg flex items-start gap-3 text-sm">
-              <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+            <div className="mb-5 p-3.5 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl flex items-start gap-2.5 text-xs font-medium">
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
               <span>{error}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
                 Email Address
               </label>
               <div className="relative">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <Mail className="w-5 h-5 text-slate-500" />
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
+                  <Mail className="w-4 h-4 text-slate-400" />
                 </span>
                 <input
                   type="email"
-                  className="w-full pl-10 pr-4 py-3 bg-[#0d1424]/60 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent text-sm transition-all"
-                  placeholder="name@example.com"
+                  className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm text-slate-900 placeholder:text-slate-400 transition-all"
+                  placeholder="student@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={loading}
@@ -76,16 +80,16 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
                 Password
               </label>
               <div className="relative">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <Lock className="w-5 h-5 text-slate-500" />
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
+                  <Lock className="w-4 h-4 text-slate-400" />
                 </span>
                 <input
                   type="password"
-                  className="w-full pl-10 pr-4 py-3 bg-[#0d1424]/60 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent text-sm transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm text-slate-900 placeholder:text-slate-400 transition-all"
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -96,28 +100,38 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              className="w-full py-3 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 font-semibold rounded-xl text-sm transition-all shadow-lg hover:shadow-violet-500/20 active:scale-[0.98] flex items-center justify-center gap-2"
+              className="w-full mt-2 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-sm transition-all shadow-sm shadow-indigo-600/20 active:scale-[0.98] flex items-center justify-center gap-2"
               disabled={loading}
             >
               {loading ? (
                 <>
-                  <Loader2 className="w-5 h-5 animate-spin" /> Logging in...
+                  <Loader2 className="w-4 h-4 animate-spin" /> Verifying...
                 </>
               ) : (
-                "Log In"
+                <>
+                  <span>Sign In</span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
               )}
             </button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-slate-400">
+          <div className="mt-6 text-center text-xs text-slate-500 border-t border-slate-100 pt-5">
             Don't have an account?{" "}
             <Link
               href="/signup"
-              className="text-violet-400 hover:text-violet-300 font-semibold underline underline-offset-4"
+              className="text-indigo-600 hover:text-indigo-700 font-semibold underline underline-offset-4"
             >
-              Sign Up
+              Create free account
             </Link>
           </div>
+        </div>
+
+        {/* Back to Home link */}
+        <div className="text-center mt-6">
+          <Link href="/" className="text-xs text-slate-500 hover:text-slate-800 transition-colors">
+            ← Back to Home
+          </Link>
         </div>
       </div>
     </div>
